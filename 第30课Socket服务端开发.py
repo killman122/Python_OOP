@@ -12,6 +12,8 @@ socket_server = socket.socket()  # 获得一个socket对象
 
 # 设置端口号复用,在程序退出后端口立即释放,防止在关闭程序后端口启用较慢,影响端口复用
 socket_server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+# 在端口复用中:参数1表示当前套接字,参数2表示当前套接字选项,参数3表示确定复用(True/False 0/1)
+
 
 host = 'localhost'
 port = 8888
@@ -24,8 +26,7 @@ socket_server.listen(1)
 # backlog为int整数,表示允许的连接数量,超出则等待,可以不填,不填会自动设置一个合理值
 
 # 接收客户端连接,获得连接对象,连接对象第一个参数是客户端的连接对象,第二个参数是客户端的地址信息(是元组数据类型)
-print(
-    socket_server.accept())  # (<socket.socket fd=396, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 8888), raddr=('127.0.0.1', 2506)>, ('127.0.0.1', 2506))
+print(socket_server.accept())  # (<socket.socket fd=396, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 8888), raddr=('127.0.0.1', 2506)>, ('127.0.0.1', 2506))
 # conn = socket_server.accept()[0] 客户端和服务端的链接对象
 # address = socket_server.accept()[1] 客户端的地址信息,客户端的ip地址和端口号
 # 注意:每次当服务端和客户端连接成功会返回一个新的套接字对象和地址信息
@@ -39,7 +40,7 @@ print(f'接收到客户端连接,客户端的信息是:{address}')
 
 # 接收客户端的信息,要使用客户端和服务端的本次链接服务,而非socket_server对象
 # 客户端连接后,使用recv方法,接收客户端发送的消息
-while True:
+while True: # 可以通过while True无限循环来持续和客户端的数据交互,主要是由于accept()方法实现客户端和服务端的连接
     data: str = conn.recv(1024).decode('utf-8')  # 使用注解并对二进制数据进行解码
     # recv方法的返回值是字节数组Bytes,可以通过decode使用utf-8解码为字符串
     # recv方法的传参是buffersize,缓存区大小,一般设置为1024
@@ -51,7 +52,7 @@ while True:
     conn.send(f"{date}".encode("utf-8"))
 
 conn.close()  # 关闭新创建的返回的套接字对象
-socket_server.close()
+socket_server.close() # 关闭服务端的套接字对象,表示服务端不再接收客户端的连接请求
 # 可以通过while True无限循环来持续和客户端的数据交互
 # 可以通过判断客服端发来的特殊标记,如exit,来退出无限循环
 # 通过使用conn(客户端当次连接对象),调用send方法可以回复消息
