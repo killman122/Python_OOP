@@ -1,20 +1,24 @@
-'''
-根据访问的网址返回指定页面的数据,在浏览器中输入什么url,则在服务端响应跳转到指定URL的服务:
-'''
+"""
+使用命令行的方式在终端中启动python服务端程序
+例如:python3/python xxx.py 端口号
+参数就是在python3/python 后面的所有数据都叫做终端中的命令参数
+使用sys.argv可以获取终端中命令行启动程序时传入的命令参数,是列表类型数据
+"""
 
 import socket
 import os
 import threading
+import sys
 
 
 class HttpWebServer:
-    def __init__(self):
+    def __init__(self, port):
         # 创建一个tcp服务端套接字
         tcp_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # 设置端口号复用
         tcp_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # 绑定端口号
-        tcp_server_socket.bind(('localhost', 8888))
+        tcp_server_socket.bind(('localhost', port))
         # 设置监听
         tcp_server_socket.listen(129)  # 最大有129个连接可以等待监听
         # 如果不加while 循环执行一次后只能连接一个客户端,为了实现多端通信,可以采用while True无限循环
@@ -112,10 +116,26 @@ class HttpWebServer:
 
 
 def main():
+    # 获取终端命令行参数
+    parmas = sys.argv
+    print(parmas, type(parmas))
+    # 列表中的每项数据都是字符串类型
+    # 判断参数个数是否等于2
+    if len(parmas) != 2:
+        print("执行的命令格式如下:python3 xxx.py 9000")
+        return
+
+    # 判断第二个参数是否都是由数字组成的字符串
+    if not parmas[1].isdigit():  # 如果在不确定下标类型的情况下,可以使用"".isxxx的方式调用字符串中的方法,观察是否具有提示
+        print("执行的命令格式如下:python3 xxx.py 9000")
+        return
+    # 代码执行到此,说明命令行执行的参数一定是2个,并且第二个蚕食是由数字组成的字符串
+    port = int(parmas[1])
+
     # 创建一个web服务器对象
-    web_server = HttpWebServer()
+    web_server = HttpWebServer(port)
     # 启动服务器
-    web_server.start() # 由于使用return 必须在函数中,所以为了防止在调用函数的时候出现异常,将main在中的代码分装在一个函数中
+    web_server.start()  # 由于使用return 必须在函数中,所以为了防止在调用函数的时候出现异常,将main在中的代码分装在一个函数中
 
 
 if __name__ == '__main__':
